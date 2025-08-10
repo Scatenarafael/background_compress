@@ -16,34 +16,14 @@ FOLDER = f"{BASE_DIR}/monitoring_folder/"
 
 RESULT_FOLDER = f"{FOLDER}/compressed/"
 
-LOCKFILE = f"{FOLDER}tmp/compress.lock"
-
 
 EXTENSION = ".dasf"
-THRESHOLD_BYTES = 1 * 1024 * 1024 * 1024  # 10GB
+THRESHOLD_BYTES = 0.5 * 1024 * 1024 * 1024  # 10GB
 MIN_AGE_SECONDS = 60  # 1 minuto
 
 NUM_PROCESSES = 3
-# def is_locked():
-#     print("[COMPRESS LOCKED] is_locked: Verificando se a compactação já está em andamento")
-#     return os.path.exists(LOCKFILE)
 
 
-# def create_lock():
-#     print("[COMPRESS] LOCKING...")
-#     with open(LOCKFILE, "w") as f:
-#         f.write(str(os.getpid()))
-
-
-# def release_lock():
-#     if os.path.exists(LOCKFILE):
-#         os.remove(LOCKFILE)
-#         print("[COMPRESS] LOCKING RELEASED...")
-
-# write_lock = threading.Lock()
-
-
-# === UTILITÁRIOS ===
 def get_dasf_files():
     """
     Retorna uma lista de arquivos .dasf com seus tamanhos e paths,
@@ -109,7 +89,6 @@ def remove_files(files):
 
 
 def worker(file_batch):
-    """Processo que irá compactar um lote de arquivos."""
     timestamp = time.strftime("%Y%m%d%H%M%S")
     pid = os.getpid()
 
@@ -152,9 +131,6 @@ def check_and_compress_raw_files():
                 process.append(p)
 
             process = [p.join() for p in process]
-
-            # with multiprocessing.Pool(processes=NUM_PROCESSES) as pool:
-            #     pool.map(worker, file_batches)
 
             print(f"✅ Compressed to {output_tar} ({total_size / 1024**3:.2f} GB).")
         except Exception as e:
